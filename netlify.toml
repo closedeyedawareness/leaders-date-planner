@@ -1,0 +1,11 @@
+[build]
+publish = "."
+command = "echo 'No build needed - static site'"
+
+[[redirects]]
+from = "/*"
+to = "/leaders-date-planner.html"
+status = 200
+
+[dev]
+publish = "."
