@@ -332,9 +332,65 @@
       font-size:14px;
       line-height:1.7;
     }
+    .gate {
+      position:fixed;
+      inset:0;
+      z-index:2000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at 18% 3%, rgba(216,179,90,.18), transparent 27%),
+        radial-gradient(circle at 88% 12%, rgba(227,6,19,.13), transparent 22%),
+        linear-gradient(150deg,#050505 0%,#11100d 52%,#060606 100%);
+      padding:20px;
+    }
+    .gate-box {
+      width:100%;
+      max-width:380px;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:34px 28px;
+      text-align:center;
+      background:linear-gradient(145deg,rgba(14,14,13,.92),rgba(9,9,8,.8));
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .gate-box img { width:100px; height:auto; margin:0 auto 18px; display:block; }
+    .gate-box h2 {
+      margin:0 0 6px;
+      font-family:"Helvetica Now Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size:16px;
+      font-weight:700;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      color:var(--gold2);
+    }
+    .gate-box p { margin:0 0 18px; color:var(--muted); font-size:13px; line-height:1.5; }
+    .gate-box input {
+      text-align:center;
+      letter-spacing:.1em;
+    }
+    .gate-error {
+      display:none;
+      color:var(--rose);
+      font-size:12px;
+      margin:-8px 0 14px;
+    }
+    body.locked .wrap { display:none; }
   </style>
 </head>
-<body>
+<body class="locked">
+  <div id="passwordGate" class="gate">
+    <div class="gate-box">
+      <img src="assets/AON.png" alt="Aon" />
+      <h2>Leaders in Benefits</h2>
+      <p>This dashboard is private. Enter the access password to continue.</p>
+      <input id="gatePassword" type="password" placeholder="Password" autocomplete="off" />
+      <p id="gateError" class="gate-error">Incorrect password. Please try again.</p>
+      <button class="save" id="gateSubmit">Enter</button>
+    </div>
+  </div>
+
   <div class="wrap">
     <section class="hero">
       <div class="logo-container">
@@ -416,6 +472,39 @@
   </div>
 
 <script>
+// ── Password gate ───────────────────────────────────────────────────────
+const GATE_PASSWORD = "LIB2026";
+const GATE_SESSION_KEY = "lib_gate_unlocked";
+
+function unlockGate() {
+  document.body.classList.remove("locked");
+  document.getElementById("passwordGate").style.display = "none";
+  sessionStorage.setItem(GATE_SESSION_KEY, "1");
+}
+
+function checkGatePassword() {
+  const input = document.getElementById("gatePassword");
+  const error = document.getElementById("gateError");
+  if (input.value === GATE_PASSWORD) {
+    error.style.display = "none";
+    unlockGate();
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+
+if (sessionStorage.getItem(GATE_SESSION_KEY) === "1") {
+  unlockGate();
+} else {
+  document.getElementById("gateSubmit").addEventListener("click", checkGatePassword);
+  document.getElementById("gatePassword").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") checkGatePassword();
+  });
+  document.getElementById("gatePassword").focus();
+}
+
 const SUPABASE_URL = "https://nzcguncvknmiocporvqo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_v85QnoQXXFVdLxxxQFcPnw_cTDbh0LA";
 
